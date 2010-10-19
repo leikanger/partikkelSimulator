@@ -6,7 +6,7 @@
 // #include <iostream>
 #include "partikkelG.h"
 
-#include "gruppering.h"
+//#include "gruppering.h"
 
 #include "masseG.h"
 #include "main.h"

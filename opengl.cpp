@@ -15,7 +15,7 @@
 #include <math.h>
 //Inkluder .h fil som bl.a. definerer classen partikkel med classefunk. og instanser av classen
 #include "partikkelG.h"
-#include "gruppering.h"
+//#include "gruppering.h"
 #include "main.h"
 
  //}1

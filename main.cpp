@@ -16,7 +16,7 @@
 #include <signal.h>
 
 #include "partikkelG.h"
-#include "gruppering.h"
+//#include "gruppering.h"
 #include "main.h"
 
 //}1
