@@ -1,0 +1,23 @@
+  (done)		LAG EN TRÅD FOR KVAR PARTIKKEL for utregning. Fikser mutex-problem. Full paralellisering. 
+  			(amdahls lov) speedup = 1/(1-p)		om den er full paralelliserbar -> uendelig speedup.
+
+Fullfør gruppering av partikler for auke i maks-partikler / minke i regnekrav.
+
+openGL - bruk meir opengl for å gjøre grafikken kulare
+
+
+
+Lag stack for jobbing for trådene. pthread_create er 1800ganger tyngre enn funk-kall. Ikkje opn ny pthread kvar gang, men bruk stack for jobber, eller tilsvarende eller noke..
+
+
+
+Planlegging av overgang til meir dynamisk system.
+For å gå over til meir dyn sys , så må det vere mulig å bestemme kva vector som bestemmer alle partikler, bl.a. for å bytte ut fra partikler til dyr.
+
+Løysing A) lage klasse med vector<masse*> som mdl.  	Objekt kan være global? Og i så fall, lage en glob. peiker som kan peike på obj. som er i bruk. Kan dermed 
+							    enkelt bytte ut partikkel med dyr eller tilsvarende ved å relokere peikeren.
+							Eller lokal, og sendes som argument. (best, vanskeligst)
+	 -> ei slik klasse kan også ha allePartiklerXYZ - posisjonsarray, og allePartiklerXYZ-Mutex.
+	 -> kan lage fleire instanser av objekt, og evt. switche mellom dei v.h.a. en knapp.
+	 -> 
+
