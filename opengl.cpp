@@ -46,6 +46,8 @@ extern pthread_mutex_t mutexVent1;
 //extern partikkel partikkel_variabel_pga_konstruktor_kjoerer_ikkje_i_vector_init[ANTALL PARTIKLER];
 extern pthread_t kalkuleringstraad;
 extern bool skinn::globalAvluttProgramVariabel;
+
+extern void togglePauseSystem();
 //}1
 // Definisjoner av variabler. //{1 
 //int returFraPthreadCreate;
@@ -287,7 +289,7 @@ void keyboard(unsigned char key, int x, int y)
 	 * * * er viktige..     * * *
 	 * * * * * * *  * * * * * * */
 
-	if (key == ' ') toggleMasseFjoerDempetSystem();
+	if (key == ' ') togglePauseSystem();
 
 	if (key == 'm')
 	{

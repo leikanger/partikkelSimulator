@@ -34,15 +34,15 @@ pthread_mutex_t mutexVent1 = PTHREAD_MUTEX_INITIALIZER;
 pthread_t litenTraa[ANTALLTRAADER];
 //double allePartikkelXYZ[3][ANTALL PARTIKLER];				// posisjonen til alle partiklane. 				
 //double allePartikkelXYZiMasseFjaerStartTidspunkt[3][ANTALL PARTIKLER]; 	// brukes til å kopiere den over ( når bruker trykker space ) 
-bool masseFjoerDempetSystemBool = false;
+bool pauseSystemBool = false;
 //double avstand MellomPartikler[ANTAL LPARTIKLER][ANTALL PARTIKLER];		// avstanden mellom to partikler 				
-int partikkel::antallObjekterInitiert = 0;
+int axon::antallObjekterInitiert = 0;
 //double kraftMellomPartArray[3][ANTALL PARTIKLER][ANTALL PARTIKLER];
 extern bool skinn::globalAvluttProgramVariabel; 
 //}1
 
 
-partikkel::partikkel()
+axon::axon()
 { // ... } //{1
 	
 	// tilfeldig tall seed
@@ -51,14 +51,9 @@ partikkel::partikkel()
 	mPos.nyeVerdier( ((0.01 * (rand()%200)) -1) * GRENSE ,  ( (0.01 * (rand()%200)) -1) * GRENSE  	,  ( (0.01 * (rand()%200)) -1) * GRENSE , "Posisjon " );
 	mV.nyeVerdier( 	 mPos.getVerdi('y')*STARTFART_TANG   ,  mPos.getVerdi('x')*STARTFART_TANG  	,  mPos.getVerdi('x')*STARTFART_TANG    , "Fart " );
 
-	masseTotal =  0.1 *( rand() % 20 ) +1;
+	//masseTotal =  0.1 *( rand() % 20 ) +1;
 
 	
-	/*  KUK - Kommentert-Ut-Kode //{3 
-	mV [0] = -mPos [1] * STARTFART_TANG;  //  0;//(0.0001 * (rand()%10)) ;
-	mV [1] =  mPos [0] * STARTFART_TANG; // 0;//(0.0001 * (rand()%10)) ;
-	mV [2] =  mPos [0] * STARTFART_TANG; // minus / pluss??
-	 *   //}3 */ 
 
 	// slik at det er lenge siden krasjtid når den krasjer.
 	krasjtid = time(0);
@@ -226,7 +221,7 @@ void *holdStyrPaaPart(void*) //void* (arg) er ikkje brukt foreløpig..
 
 		//	printf("\t\t\t\t\t\t\t\tKALKULERER KREFTER: \n");
 			//printf("id: %d \n", (*masse::pAlleEnheterMapPeik)[i]->getId() );
-		 	(*masse::pAlleEnheterMapPeik)[iter]->kalkulerKraftMellomMasseSenter();
+		 	(*masse::pAlleEnheterMapPeik)[iter]->kalkulerKraftMotNeuronSenter();
 		
 	
 		//	printf("\t\t\t\t\t\t\t\tSUMMERER KREFTER TIL mF og integrerer opp: \n");
@@ -261,14 +256,14 @@ void *holdStyrPaaPart(void*) //void* (arg) er ikkje brukt foreløpig..
 } //}1
 
 
-void partikkel::kalkulerAvstander(vector<masse*> vmpArgument)
+void axon::kalkulerAvstander(vector<masse*> vmpArgument)
 {
 	 //dirty. men for no, ok. Driver med major omvelting.
-	 partikkel::kalkulerAvstander();
+	 axon::kalkulerAvstander();
 }
 
 // en todo inni her.
-void partikkel::kalkulerAvstander()
+void axon::kalkulerAvstander()
 { // ... //{1 }
 
 	double nesteUtregnaAvst;
@@ -325,27 +320,22 @@ void partikkel::kalkulerAvstander()
 	}
 } //}1
 
-// TODO : fiks denne, og gjør kalkulerKraftMellomMasseSenter() const
-//  		s.a. den tar inn (int, int) og endrer på status på de to part. med desse id-er, til nykrasja (-1)
-//  		evt. bare en int., og endre den, og seg selv.
-//  		og gjør den static i så fall.
-//
-//  		I tillegg kan eg da fjærne krasjtid og status fra masse. (desse er no dobbelt opp. masse og partikkel)
-//  		XXX
-void partikkel::kollisjon( int andrePartikkelId, bool denneFunksjonErKallaFraUtsida =true )
+
+/*
+void axon::kollisjon( int andrePartikkelId, bool denneFunksjonErKallaFraUtsida =true )
 {
 	//XXX Vurderer å flytte inn i masse - klassa...
 	//
 	
 	//partikkel *pTemp= static_cast<partikkel*>(p Part[andrePartikkelId])  ;
-	partikkel *hipartikkelen = static_cast<partikkel*> ( (*masse::pAlleEnheterMapPeik)[andrePartikkelId] );
+	axon *hiaxonen = static_cast<axon*> ( (*masse::pAlleEnheterMapPeik)[andrePartikkelId] );
 
 	 //TODO legg inn feilsjekking. Kanskje noke alla:
-	 //if( ! ( pTemp = static_cast<partikkel*>(p Part[andrePartikkelId]) )  ) throw feil_i_objektId("I kollisjon: Leiter etter partikkel m. ukjendt obj. id.");
+	 //if( ! ( pTemp = static_cast<axon*>(p Part[andrePartikkelId]) )  ) throw feil_i_objektId("I kollisjon: Leiter etter axon m. ukjendt obj. id.");
 
-	 if( !hipartikkelen )  throw feil_i_objektId("I kollisjon: Leiter etter partikkel m. feil i id, eller av anna grunn (*0)");//for å styre unna segf.
+	 if( !hiaxonen )  throw feil_i_objektId("I kollisjon: Leiter etter axon m. feil i id, eller av anna grunn (*0)");//for å styre unna segf.
 
-	 //partikkel::kollisjon( pTemp );
+	 //axon::kollisjon( pTemp );
 
 	double hinPartikkelPos[3];
 
@@ -360,27 +350,22 @@ void partikkel::kollisjon( int andrePartikkelId, bool denneFunksjonErKallaFraUts
 		koordinat hiFart;
 
 		// gjør fra pInput-> til ppart[i]-> , der i er inputid-int som skal komme som arg.
-		hiFart = hipartikkelen->getFart();
-		hiMasseVerdi = hipartikkelen->getMasseTotal();
+		hiFart = hiaxonen->getFart();
+		hiMasseVerdi = hiaxonen->getMasseTotal();
 		
-		double retnFaktorX =  (( masseTotal - hiMasseVerdi) + 2 * (hiMasseVerdi * hiFart['x']) /*vekt*/  /* hinFarta[0]*/ )     /   (hiMasseVerdi + masseTotal);
-		double retnFaktorY =  (( masseTotal - hiMasseVerdi) + 2 * (hiMasseVerdi * hiFart['y']) /*vekt*/  /* hinFarta[0]*/ )     /   (hiMasseVerdi + masseTotal);
-		double retnFaktorZ =  (( masseTotal - hiMasseVerdi) + 2 * (hiMasseVerdi * hiFart['z']) /*vekt*/  /* hinFarta[0]*/ )     /   (hiMasseVerdi + masseTotal);
+		double retnFaktorX =  (( masseTotal - hiMasseVerdi) + 2 * (hiMasseVerdi * hiFart['x']) )     /   (hiMasseVerdi + masseTotal);
+		double retnFaktorY =  (( masseTotal - hiMasseVerdi) + 2 * (hiMasseVerdi * hiFart['y']) )     /   (hiMasseVerdi + masseTotal);
+		double retnFaktorZ =  (( masseTotal - hiMasseVerdi) + 2 * (hiMasseVerdi * hiFart['z']) )     /   (hiMasseVerdi + masseTotal);
 		koordinat retnFaktor( retnFaktorX, retnFaktorY, retnFaktorZ );
 		mV = mV  *  retnFaktor;
 		//XXX ikkje heilt sikker på om denne funker etter overg. fra double[3] til koordinat
 
-		/*  KUK - Kommentert-Ut-Kode //{3 
-		mV [0] = ( mV [0] * ( masseTotal - hiMasseVerdi) + 2 * hiMasseVerdi * hinFarta[0])     /   (hiMasseVerdi + masseTotal);
-		mV [1] = ( mV [1] * ( masseTotal - hiMasseVerdi) + 2 * hiMasseVerdi * hinFarta[1])     /   (hiMasseVerdi + masseTotal);
-		mV [2] = ( mV [2] * ( masseTotal - hiMasseVerdi) + 2 * hiMasseVerdi * hinFarta[2])     /   (hiMasseVerdi + masseTotal);
-		 *   //}3 */ 
 
 	// SLUTT FORMEL
 
-	// Gjør det med andre partikkel også:
+	// Gjør det med andre axon også:
 	 	if( denneFunksjonErKallaFraUtsida ) 		//for å unngå PING_PONG
-			hipartikkelen->kollisjon( enhetsId, false ); //kollisjon med meg. 
+			hiaxonen->kollisjon( enhetsId, false ); //kollisjon med meg. 
 		//tatt med en boolverdi for å unngå pingpong-effekt.
 
 		//himassa->mV [0] = ( himassa->mV [0] * (hiMasseVerdi - masseTotal) + 2 * masseTotal * mV [0])     /   (hiMasseVerdi + masseTotal);
@@ -389,16 +374,18 @@ void partikkel::kollisjon( int andrePartikkelId, bool denneFunksjonErKallaFraUts
 
 
 	// endre status og tid.
-	// Skjer også i hipartikkelen->kollisjon...
- 	//	   hipartikkelen->status = -1;
+	// Skjer også i hiaxonen->kollisjon...
+ 	//	   hiaxonen->status = -1;
 				  status = -1;
-	//	 hipartikkelen->krasjtid = time(0);
+	//	 hiaxonen->krasjtid = time(0);
 				krasjtid = time(0);
 
 	}
 }
+*/
+
 /*
-void partikkel::kollisjon(masse* mpInput)
+void axon::kollisjon(masse* mpInput)
 { // ... } //{1
 
 	double hinPartikkelPos[3];
@@ -424,7 +411,7 @@ void partikkel::kollisjon(masse* mpInput)
 	// SLUTT FORMEL
 
 
-	// Gjør det med andre partikkel også:
+	// Gjør det med andre axon også:
 		mpInput->mV [0] = ( mpInput->mV [0] * (hiMassa - masseTotal) + 2 * masseTotal * mV [0])     /   (hiMassa + masseTotal);
 		mpInput->mV [1] = ( mpInput->mV [1] * (hiMassa - masseTotal) + 2 * masseTotal * mV [1])     /   (hiMassa + masseTotal);
 		mpInput->mV [2] = ( mpInput->mV [2] * (hiMassa - masseTotal) + 2 * masseTotal * mV [2])     /   (hiMassa + masseTotal);
@@ -444,25 +431,11 @@ void partikkel::kollisjon(masse* mpInput)
 } //}1 
 */
 
-// Lag variant med sammensmelting også. Kanskje i masseklasse?. mV+=hinP.mV, pos, masseTotal, varme++(evt), slett hin partikkel fra allePartikler*vektor[nok?], 
+// Lag variant med sammensmelting også. Kanskje i masseklasse?. mV+=hinP.mV, pos, masseTotal, varme++(evt), slett hin axon fra allePartikler*vektor[nok?], 
 // mF?, antallObjektInitiert--, osv.
 
-int partikkel::kalkulerKraftMellomMasseSenter() 
+int axon::kalkulerKraftMotNeuronSenter() 
 { // ... } //{1
-
-	//XXX XXX XXX
-	//TODO
-	//Husk å sjekke om kraft allerede er regna ut fra andre sida (andre partikkelen).
-	// eller er dette allerede ordna i utregning fra eine sida?? -> skriver til begge to, som påvirker kvarandre.. ??
-	
-	//G*M*\delta t
-	//Trur at retur ikkje blir brukt.
-
-	/*
-	kraftMellomPartArray[0][enhetsId][enhetsId] = 0; 	// påverker seg selv med null kraft.
-	kraftMellomPartArray[1][enhetsId][enhetsId] = 0; 	// påverker seg selv med null kraft.
-	kraftMellomPartArray[2][enhetsId][enhetsId] = 0; 	// påverker seg selv med null kraft.
-	*/
 
 	// Løkke for å finne alleredekrasja.
 	for(int i = 1; i<= masse::getAntallObjekt() ; i++)
@@ -471,31 +444,9 @@ int partikkel::kalkulerKraftMellomMasseSenter()
 		
 		if( ! (*masse::pAlleEnheterMapPeik)[i] ) continue;
 
-/*  KUK - Kommentert-Ut-Kode //{9 
- *		if( !ELASTISKEKOLLISJONER ) 
- *		{		// IKKJE ELASTISKE KOLLISJONER??? DEILIGARE UTEN, OG FUNKER IKKJE HEILT ENDA.
-			if(avstand MellomPartikler[enhetsId][i] < MINSTEAVSTAND){
 	
-				double retning[2];
-			      	retning[0]	= (p Part[i].pos(0) - mPos [0]) / fabs(p Part[i].pos(0)-mPos [0]);
-			      	retning[1]	= (p Part[i].pos(1) - mPos [1]) / fabs(p Part[i].pos(1)-mPos [0]);		//RHER
-																			// FUNKER IKKJE  FOR 3 DIMENSJONER
-
-				kraftMellomPartArray[0][enhetsId][i] = MAXKRAFT;//1e-30 * G * MINSTEAVSTAND * retning[0] ;//
-				// Y - verdiar (mF [1]) 		mF [1] += G*(allePartikkelXY[1][iter] - mPos [1]) / pow(avstand MellomPartikler[enhetsId][iter],3);
-				kraftMellomPartArray[1][enhetsId][i] = MAXKRAFT;//1e-30 * G * MINSTEAVSTAND * retning[1] ;
-
-				// kopierer F_ac til F_ca
-				kraftMellomPartArray[0][i][enhetsId] = -kraftMellomPartArray[0][enhetsId][i];
-				kraftMellomPartArray[1][i][enhetsId] = -kraftMellomPartArray[1][enhetsId][i];
-	
-				continue;
-			}
-		// legger inn liten vakt mot for nær akselerasjon
-		// XXX Denne if-setninga er ikkje heilt forståelig. Legg inn paranteser!!! XXX
-		}else*/ 	
-//}9 
-						 		//status 1 tyder at den har krasja, -1 at den allerede har regn ut resultat.
+		/* XXX :
+	 	//status 1 tyder at den har krasja, -1 at den allerede har regn ut resultat.
 		if(status == 1 || ((status == 0) && ((*masse::pAlleEnheterMapPeik)[enhetsId]->getAvstandTilObjekt(i) < MINSTEAVSTAND)) )
 		{
 			if( time(0) - krasjtid  > 1 ) { 
@@ -506,20 +457,17 @@ int partikkel::kalkulerKraftMellomMasseSenter()
 			return 0;
 				
 		}
+		*/
 	}
 
- 	//p DEBUG<<"Itererer til ny partikkel: " <<enhetsId <<endl;
 	
+
 	for(int iter=1 ; iter < masse::getAntallObjekt() ; iter++){ //var bare: opp til enhetsId
 		
 		if(iter == enhetsId) continue;
 
 		//double divident = 1/pow(avstandMellomPartikler[enhetsId][iter], 3);
 		double divident =     pow( avstandTilAndreObjekt[iter], 3);
-		// XXX
-		// divitent er lik 1/divident. Heilt feil! sjå ned. deler på divitent, men divitent er allerede delt.
-		// endrer uten å ha mulighet for å sjekke resultat.
-		// XXX
 
 		//mF [1] += G*(allePartikkelXY[1][iter] - mPos [1]) / pow(avstand MellomPartikler[enhetsId][iter],3);
 		//XXX fiks dette slik at pos() returnerer en koordinat og vi kan skrive alt dette ved ei linje. 
@@ -530,25 +478,6 @@ int partikkel::kalkulerKraftMellomMasseSenter()
 		double kraftMellomPartUtregningY = G*( (*masse::pAlleEnheterMapPeik)[iter]->pos(1) - mPos.getVerdi('y') ) / divident;
 		double kraftMellomPartUtregningZ = G*( (*masse::pAlleEnheterMapPeik)[iter]->pos(2) - mPos.getVerdi('z') ) / divident;
 
-		//{9	KUK / kommentert-ut-kode
-		/*
-		printf("enhetsId %d, iter %d \n",enhetsId, iter);
-
-		printf("*m::p[it]->pos(0) |%f|-mPos [0] |%f| = %f\n",(*masse::pAlleEnheterMapPeik)[iter]->pos(0), mPos [0], (*masse::pAlleEnheterMapPeik)[iter]->pos(0)-mPos [0] );
-		printf("*m::p[it]->pos(1) |%f|-mPos [1] |%f| = %f\n",(*masse::pAlleEnheterMapPeik)[iter]->pos(1), mPos [1], (*masse::pAlleEnheterMapPeik)[iter]->pos(1)-mPos [1] );
-		printf("*m::p[it]->pos(2) |%f|-mPos [2] |%f| = %f\n",(*masse::pAlleEnheterMapPeik)[iter]->pos(2), mPos [2], (*masse::pAlleEnheterMapPeik)[iter]->pos(2)-mPos [2] );
-
-		// a -> b (a påvirker b) like mykje som b -> a (newton)
-		// kopierer F_ac til F_ca
-		/ *  
-		kraftMellomPartArray[0][iter][enhetsId] = -kraftMellomPartUtregningX;
-		kraftMellomPartArray[0][enhetsId][iter] = kraftMellomPartUtregningX;
-		kraftMellomPartArray[1][iter][enhetsId] = -kraftMellomPartUtregningY;
-		kraftMellomPartArray[1][enhetsId][iter] = kraftMellomPartUtregningY;
-		kraftMellomPartArray[2][iter][enhetsId] = -kraftMellomPartUtregningZ;
-		kraftMellomPartArray[2][enhetsId][iter] = kraftMellomPartUtregningZ;
-		*/ //}9
-	
 
 		//NY METODE: XX start
 //		if( pPaavirkaAvDenneKraftFraAndreObj[iter]->erTom() )  // dersom oppføring ikkje finnes. Lag den.
@@ -587,26 +516,14 @@ int partikkel::kalkulerKraftMellomMasseSenter()
 	return 0;	
 } //}1
 
-void partikkel::kalkulerBane()
+void axon::kalkulerBane()
 { // ... } //{1
 
-	/* KUK - Kommentert-Ut-Kode //{3  Nuller ut krafta fra forrige iterasjon
-	 * Flytta inn i nullUtAvstanderOgKraft_i_pAlleEnheter
-	mF [0] = 0;
-	mF [1] = 0;
-	mF [2] = 0;
-	forresten: har også bytta ut double[] med koordinat.
-	mF.nullUt() gjør samme jobben.
-	//}3 */
-
-	// sjekker om partikkel treffer veggen:
+	// sjekker om axon treffer veggen:
 	if(mPos['x'] > GRENSE  ){
 		mV['x'] = -mV['x'];
 		mPos['x'] = GRENSE - 0.01 ;
-	}else if( mPos['x'] < -GRENSE){ 			// XXX HER ER EG. TODO gjør ferdig :denne, og resten av overføringa fra double [3] til koordinat
-
-		//TODO plan: lær om operator, nok til å lage [] subscipt til koordinat. s.a. eg kan skrive mV['x']; XXX
-
+	}else if( mPos['x'] < -GRENSE){ 		
 		mV['x'] = -mV['x'];											// VEGG VEGG VEGG
 		mPos['x'] = -GRENSE + 0.01;
 	}else if(mPos['y'] > GRENSE){
@@ -623,43 +540,22 @@ void partikkel::kalkulerBane()
 		mPos['z'] = -GRENSE + 0.01;
 	}else 
 	{
-		//if( enhetsId == 1 ) pDEBUG <<"."; //for å sjekke kvifor det er så helvetes hakkete.
-		// iterasjonsprikker
-		//Kvar prikk er en runde gjennom alle partikler..
 
-		// gravitasjon funker bare når partiklane ikkje krasjer i vegg 
+		// gravitasjon gjelder bare når partiklane ikkje krasjer i vegg 
 	
 		// Summen av gravitasjonskrefter:
 		for(int iter = 1; iter <= masse::getAntallObjekt() ; iter++){
 			if( !(*masse::pAlleEnheterMapPeik)[iter] ) continue;  		// sikrer mot null-peiker fra pAlleEnheterMapPeik 
 			if( iter == enhetsId ) continue;
 			
-			// p DEBUG <<enhetsId <<" - partikkelG.cpp@qwer695" <<"] -  " <<iter <<endl ;  
-			/// XXX Dette er feil.  -> testa å skrive ut kvar gang !paavirkaAvDenneKraftFraAndreObj_[it] => kvar gang.
 			if( !pPaavirkaAvDenneKraftFraAndreObj[iter] ) // peiker med verdi 0 ?
 			{
 				printf("\n\n\n\n\n\n\n\n\t\t\t\tFAA OPPMERSOMHET!!\tqwer029 Finn ut kvifor den ikkje funker (segf.) når neste linjene er utkommentert. \n\n\n");
-				// p DEBUG<<"!pPaavirkaAvDenneKraftFraAndreObj[ " <<iter <<"] : " <<pPaavirkaAvDenneKraftFraAndreObj[iter] <<"  qwer43t@partikkelG.cpp" <<endl;
 
-				// p DEBUG<<" Continue" <<iter <<endl ;
 				continue; 	// sikter mot nul-verdi i pPaavirkaAvDenneKraftFraAndreObj (kvifor?) XXX 
-	/*//	(jepp, funker ikkje lenger med denne utkommentert..)		*/
 			}	
-			/*  XXX
-			 	 Det er pAlleEnheterMapPeik - iter - som skal sjekkes om har verdi. Det er allerede gjort. Her bør eg sjekke motsatt vei. om 
-			  				pPaavirkaAvDenneKraftFraAndreObj finnes fra andre sida, kopier, og continue.   
-			  				- men dette i kalkulerKraftMellomMasseSenter 
-			*/
 
-			/*  KUK - Kommentert-Ut-Kode //{9
-			mF [0] += pPaavirkaAvDenneKraftFraAndreObj[iter]->getVerdi('x');
-			mF [1] += pPaavirkaAvDenneKraftFraAndreObj[iter]->getVerdi('y');// kraftMellomPartArray[1][enhetsId][iter];
-			mF [2] += pPaavirkaAvDenneKraftFraAndreObj[iter]->getVerdi('z');// kraftMellomPartArray[2][enhetsId][iter];
-			 *   //}9 */ 
 			mF += *pPaavirkaAvDenneKraftFraAndreObj[iter] ;
-			//printf("meg(%d) til %d: ", enhetsId, iter );
-			//pPaavirkaAvDenneKraftFraAndreObj[iter]->skrivUt("legger til denne kraft:");
-			//mF.skrivUt("mF\t\t\t\t");
 		}
 
 			
@@ -667,48 +563,35 @@ void partikkel::kalkulerBane()
 		// LEGGER INN LIN. LUFTMOTSTAND: F = - k V
 		// Gjør om mV til vektorform.
 		mF += mV*LUFTMOTSTANDFAKTOR; // veit ikkje om funker enda. utesta..
-		/*  KUK - Kommentert-Ut-Kode //{3 
-		mF.leggTilVerdi('x', mV [0] * LUFTMOTSTANDFAKTOR );
-		mF.leggTilVerdi('y', mV [1] * LUFTMOTSTANDFAKTOR );
-		mF.leggTilVerdi('z', mV [2] * LUFTMOTSTANDFAKTOR );
-		 *   //}3 */ 
 
 		// LEGGER Evt til masse-fjoer-demper sys. krefter
-		if( masseFjoerDempetSystemBool )
+		if( pauseSystemBool )
 		{
-			printf("masseFjoerDempetSystemBool er ikkje implementer. partikkelG.cpp:qwer555@partikkelG.cpp \n"); // XXX HER
-			/*
-			// fjoer: - (utg_pos - pos) * K_fjoer
-			mF [0] -= (mPos [0] - allePartikkelXYZiMasseFjaerStartTidspunkt[0][enhetsId]) * FJAER_KONST;
-			mF [1] -= (mPos [1] - allePartikkelXYZiMasseFjaerStartTidspunkt[1][enhetsId]) * FJAER_KONST;
-			mF [2] -= (mPos [2] - allePartikkelXYZiMasseFjaerStartTidspunkt[2][enhetsId]) * FJAER_KONST;
-			// demper:-  fart 	    * K_demper
-			mF [0] -= mV [0] * DEMPER_KONST;
-			mF [1] -= mV [1] * DEMPER_KONST;
-			mF [2] -= mV [2] * DEMPER_KONST;
-			*/
+			printf("pauseSystemBool er aktivert. partikkelG.cpp:qwer555@partikkelG.cpp \n");
+
+			return;
 		}
 
 		// Legger over mF og bruker den til aksellerasjon, integrerer (foreløpig på simpleste måte) den opp til fart og pos .
 		/*  KUK - Kommentert-Ut-Kode //{3 
-		partikkelA[0] = mF [0] / masseTotal;
-		partikkelA[1] = mF [1] / masseTotal;	
-		partikkelA[2] = mF [2] / masseTotal;
+		axonF[0] = mF [0] / masseTotal;
+		axonF[1] = mF [1] / masseTotal;	
+		axonF[2] = mF [2] / masseTotal;
 		 *   //}3 */ 
-		partikkelA[0] = mF['x'] / masseTotal;
-		partikkelA[1] = mF['y'] / masseTotal;	
-		partikkelA[2] = mF['z'] / masseTotal;
+		axonF[0] = mF['x'] / masseTotal;
+		axonF[1] = mF['y'] / masseTotal;	
+		axonF[2] = mF['z'] / masseTotal;
 	
 		// regner ut nyV fra gammelV. Dette kan kanskje lede til småfeil->storefeil etter lang tid, men dette er måten for no..
 		// rett på dette / gjør at feil ikkje gror i det uendelige..
-		mV.leggTilVerdi('x', partikkelA[0]); 
-		mV.leggTilVerdi('y', partikkelA[1]); 
-		mV.leggTilVerdi('z', partikkelA[2]); 
-		//XXX lag partikkelA til koordinat, og mV+=partikkelA
+		mV.leggTilVerdi('x', axonF[0]); 
+		mV.leggTilVerdi('y', axonF[1]); 
+		mV.leggTilVerdi('z', axonF[2]); 
+		//XXX lag axonF til koordinat, og mV+=axonF
 		/*  KUK - Kommentert-Ut-Kode //{3 
-		mV [0] += partikkelA[0];
-		mV [1] += partikkelA[1];
-		mV [2] += partikkelA[2];
+		mV [0] += axonF[0];
+		mV [1] += axonF[1];
+		mV [2] += axonF[2];
 		 *   //}3 */ 
 	
 		// og kanskje samme her.
@@ -720,73 +603,29 @@ void partikkel::kalkulerBane()
 		 *   //}3 */ 
 	}
 
-	//pDEBUG << "Kom hit. Slutt på partikkel::kalkulerBane()\n";
+	//pDEBUG << "Kom hit. Slutt på axon::kalkulerBane()\n";
 
-//{5 UKK (utkommentert kode)
-/*
-	/// XXX GAMMELT: SLETT XXX
-	//
-		// Summen av gravitasjonskrefter:
-		for(int iter = 0; iter < ANTALL PARTIKLER; iter++){  										// HER XXX
-		// *XXX XXX XXX
-			mF [0] += kraftMellomPartArray[0][enhetsId][iter];
-			mF [1] += kraftMellomPartArray[1][enhetsId][iter];
-			mF [2] += kraftMellomPartArray[2][enhetsId][iter];										
-		//XXX XXX XXX
-		}
-
-		// LEGGER INN LIN. LUFTMOTSTAND: F = - k V
-		mF [0] -= mV [0] * LUFTMOTSTANDFAKTOR;
-		mF [1] -= mV [1] * LUFTMOTSTANDFAKTOR;
-		mF [2] -= mV [2] * LUFTMOTSTANDFAKTOR;
-
-		// LEGGER Evt til masse-fjoer-demper sys. krefter
-		if( masseFjoerDempetSystemBool )
-		{
-			// fjoer: - (utg_pos - pos) * K_fjoer
-			mF [0] -= (mPos [0] - allePartikkelXYZiMasseFjaerStartTidspunkt[0][enhetsId]) * FJAER_KONST;
-			mF [1] -= (mPos [1] - allePartikkelXYZiMasseFjaerStartTidspunkt[1][enhetsId]) * FJAER_KONST;
-			mF [2] -= (mPos [2] - allePartikkelXYZiMasseFjaerStartTidspunkt[2][enhetsId]) * FJAER_KONST;
-			// demper:-  fart 	    * K_demper
-			mF [0] -= mV [0] * DEMPER_KONST;
-			mF [1] -= mV [1] * DEMPER_KONST;
-			mF [2] -= mV [2] * DEMPER_KONST;
-		}
-
-		// Legger over mF og bruker den til aksellerasjon, integrerer (foreløpig på simpleste måte) den opp til fart og pos .
-		partikkelA[0] = mF [0] / masseTotal;
-		partikkelA[1] = mF [1] / masseTotal;	
-		partikkelA[2] = mF [2] / masseTotal;
-	
-		mV [0] += partikkelA[0];
-		mV [1] += partikkelA[1];
-		mV [2] += partikkelA[2];
-	
-		mPos [0] += mV [0];
-		mPos [1] += mV [1];
-		mPos [2] += mV [2];
-*/ //}5
 
 } //}1
 
-string partikkel::getObjektType( bool taMedId ) const
+string axon::getObjektType( bool taMedId ) const
 { // ... } //{1
 	
 	char idIstring[100]; 	   //%s-string
 	sprintf( idIstring, " [%d]",  enhetsId );
 	
-	string returString = "partikkel";
+	string returString = "axon";
 	if( taMedId ){	returString += idIstring; }
 	return returString;
  
 
 } //}1
 
-void toggleMasseFjoerDempetSystem()
+void togglePauseSystem()
 { //{ ... }
- 	masseFjoerDempetSystemBool = !masseFjoerDempetSystemBool;
+ 	pauseSystemBool = !pauseSystemBool;
 
-	printf("Toggler masseFjoerDempetSystemBool til %d\n", masseFjoerDempetSystemBool);	
+	printf("Toggler pauseSystemBool til %d\n", pauseSystemBool);	
 	// initierer no-pos-array ( for utregning av frær-krefter )
 	// einaste måten eg får til lett:
 

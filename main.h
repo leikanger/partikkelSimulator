@@ -6,9 +6,9 @@
 
 // GLOBALE KONST-er
 
-//har intensjoner om å bytte fra 100 til partikkel::ncUseAntall();
+//har intensjoner om å bytte fra 100 til axon::ncUseAntall();
 //#define ANTALLPARTIKLER 100 // må være minst n*2 dersom gruppering true..
-//#define ANTALLPARTIKLER partikkel::ncUseAntall()
+//#define ANTALLPARTIKLER axon::ncUseAntall()
 
 //#define ANTALLPARTIKLER *pncAntallPartikler
 //#define ANTALLPARTIKLER 100
@@ -18,7 +18,7 @@ extern const int * pncAntallPartikler;
 #define cDEBUG cerr 
 #define QWER_Her_foer  cDEBUG << "Kom hit. QWER_Her_foer \n"
 #define QWER_Her_etter cDEBUG << "Kom hit. QWER_Her_etter\n"
-// ta med i class:partikkel : ncAntallPartikler
+// ta med i class:axon : ncAntallPartikler
 // istenden!
 //
 
@@ -28,7 +28,7 @@ extern const int * pncAntallPartikler;
 #define STARTFART_TANG 5e-4 
 #define G 1e-8
 #define LUFTMOTSTANDFAKTOR 0 //1e-3
-#define GRENSE 1.3 	// definerer partikkelvegg i alle retninger. 1 er kant på skjerm.
+#define GRENSE 1.3 	// definerer axonvegg i alle retninger. 1 er kant på skjerm.
 
 #define FJAER_KONST 5e-4
 #define DEMPER_KONST 5e-3

@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
 		// Lager instanser av partikkel (siste arg.-antall partikler. : )
 		for( int it = 0; it < ncUseArg() ; it++)
 		{
-			partikkel* pPtemp = new partikkel(); 
+			axon* pPtemp = new axon(); 
 								// kan segfaulten komme av at eg new-er for mykje? //{9
 								//tester med statisk array av partikler. (5l. opp)
 								//

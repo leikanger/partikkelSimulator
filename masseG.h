@@ -102,8 +102,7 @@ class masse
 		koordinat mV; // XXX //var double mV[3]; 
 		koordinat mF; //   a  //var double mF [3]
 
-		double masseTotal;
-		//double eksternKraftPaaMeg[3];
+		double masseTotal; // Gir en treighet til groande axon..
 		
 		int enhetsId;
 	
@@ -117,7 +116,7 @@ class masse
 		//std::map<int, double> avstandTilAndreObjekt; 
 			/*
 			 * Plan:
-			 *  	- lage avstandTilAndreObjekt i alle instanser av partikkel.
+			 *  	- lage avstandTilAndreObjekt i alle instanser av axon.
 			 *  	- Denne skal følge indexRekkefoelgeFasitForAvstVektor for alle enkeltpartiklane.
 			 * 		- lag metoder for å forsikre at alle er med.
 			 */
@@ -201,7 +200,7 @@ class masse
 
 
 
-		virtual int  kalkulerKraftMellomMasseSenter() =0;// { printf("feil->: bruker nedarva funk fra masseG.h l38 \n"); }
+		virtual int  kalkulerKraftMotNeuronSenter() =0;// { printf("feil->: bruker nedarva funk fra masseG.h l38 \n"); }
 	
 
 
@@ -213,11 +212,11 @@ class masse
 		koordinat getPaaVirkningsKraft()const { return mF; }
 		// var void getFart(koordinat* fyllMeg) 	const;
 		// var void    getPos(double* fyllMeg) const;
-		double  pos(int retning) 	const { return mPos.getVerdi( retning ); }	//funker som partikkelPos[retning] bare med ()-paranteser.
+		double  pos(int retning) 	const { return mPos.getVerdi( retning ); }	//funker som axonPos[retning] bare med ()-paranteser.
 		double  getMasseTotal()  	const { return masseTotal;    }
 		int 	getId() 	 	const { return enhetsId; 	 }	
 		// skal være virtual uansett..
-		virtual void kalkulerBane(); // tom for enkelte klasser? evt bare summer eksterne krefter. ( funk er vel egentlig bare aktuell i partikkel..) tenk tenk..
+		virtual void kalkulerBane(); // tom for enkelte klasser? evt bare summer eksterne krefter. ( funk er vel egentlig bare aktuell i axon..) tenk tenk..
 		virtual std::string getObjektType( bool ) const {  return "masse";  } //poenget med bool? - for arv. virtual. Sjå andre utførelser...
 		static int getAntallObjekt() { return antallObjekterInitiert; }
 		static void skrivUt( masse* );		
