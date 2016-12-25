@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <math.h>  //??
 
+#include <unistd.h>
+
 // for bra termintering av tråder/prog.
 #include <signal.h>
 
@@ -394,7 +396,8 @@ int main(int argc, char *argv[])
 			openglMain(&argc, argv);
 		else{
 			printf("\nDropper display etter ønske (-n) \n");
-			while(1){ sleep(1); printf("HOVEDTRAAD kvart sek. \n"); (*pout)<<"HOVEDTRAAD kvart sek.\n"; 
+			while(1){ usleep(1000); printf("HOVEDTRAAD kvart sek. \n"); (*pout)<<"HOVEDTRAAD kvart sek.\n"; 
+        
 				if(skinn::alternativUtskrift_SkallBool) skinn::useUtskriftsFil_alternativ_P() <<"HOVEDTRAAD kvart sek.\n"; }
 		}
 		// TODO Når eg lærer meir om ostreams, lag en ubuffra broadcast-variant av ?out som skriver på alle (1?2?3) skjerane.
@@ -429,7 +432,7 @@ void skinn::avsluttSafe()
 		//*****************************************
 		printf("Prøver å avslutte på trådsafe måte (uten sf.)  \n");
 		skinn::globalAvluttProgramVariabel = true;
-		usleep(33); 			
+        usleep(33); 			
 		exit(0);
 		//*****************************************
 }

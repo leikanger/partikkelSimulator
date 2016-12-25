@@ -1,5 +1,5 @@
 all: main.o partikkelG.o masseG.o opengl.o vektor.o utproevingAvNyeAspekt.o
-	g++ main.o partikkelG.o masseG.o utproevingAvNyeAspekt.o opengl.o vektor.o -march=core2 -O3 -ffast-math -lpthread -lGLU -lGL -lglut -o Partikkel.out
+	g++ main.o partikkelG.o masseG.o utproevingAvNyeAspekt.o opengl.o vektor.o -std=c++11 -march=core2 -O3 -ffast-math -lpthread -lGLU -lGL -lglut -o Partikkel.out
 # har tatt bort gruppering.*
 #all: main.o partikkelG.o masseG.o gruppering.o opengl.o utproevingAvNyeAspekt.o
 #	g++ main.o partikkelG.o masseG.o gruppering.o utproevingAvNyeAspekt.o opengl.o -lpthread -lGLU -lGL -lglut -o Partikkel.out

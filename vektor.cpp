@@ -4,6 +4,8 @@
 #include <cstdlib>
 //inneholder bl.a. koordinat-klasse.
 //using std::string;
+//
+#include <unistd.h>
 using namespace std;
 
 

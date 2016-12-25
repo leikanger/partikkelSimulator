@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <GL/glut.h>
 #include <math.h>
+
+#include <unistd.h>
 //Inkluder .h fil som bl.a. definerer classen partikkel med classefunk. og instanser av classen
 #include "partikkelG.h"
 #include "gruppering.h"
